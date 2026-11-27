@@ -1,14 +1,23 @@
 # Final Cast — build sheet (one page)
 
-**Build 0.2.3** · 2026-11-27 · repo `workinmanstrokes/final-cast-v0-2` · branch `main`
-· based on commit `173d833b4943823aeecba100de368fc9213afcad` (v0.2.2)
+**Build 0.2.4** · 2026-11-27 · repo `workinmanstrokes/final-cast-v0-2` · branch `main`
+· based on commit `f3bc1093ee97452ba499e1e38da5b820b5d7b688` (v0.2.3)
 · Game Test Lab review: **3.8/10 (grade D)** — this build answers that review, item by item below.
 · VEX review (2026-11-26): **4.5/10 (grade D)** — answered in 0.2.2, kept here.
 · Game Test Lab review (2026-11-25): **4.8/10 (grade D)** — answered in 0.2.1, kept here.
 
 **Read this first: the tester reviewed the wrong game — again.** The Lab's 3.8 text describes a Grow Castle-style tower-defence Android game — "place a tower or hero, clear a wave, spend the reward, start the next wave", Google Cloud save, ads, a public store listing. Final Cast is a pixel-art idle fishing game: no towers, no waves, no heroes, no castle, no ads, no store listing, no cloud save. The mapping below applies each Lab item to the fishing game as shipped and says plainly where an item belongs to the other game instead. No tower-defence content was added.
 
-## What is playable in 0.2.3
+## What changed in 0.2.4 (VEX items 772–773, re-picked from the Lab 3.8 review)
+
+Build 0.2.3 answered Lab items 5 and 6 in this sheet only. 0.2.4 ships them in the game itself:
+
+| # | Lab item | What 0.2.4 does |
+|---|---|---|
+| 772 | Clarify store identity: exact title, icon, screenshots, and description that separate Final Cast from Final Castle, Final Squad, and The Finals | The identity now ships in the build, not just in this sheet: `manifest.webmanifest` carries the exact title **"Final Cast — Idle Fishing"**, the description that opens "pixel-art idle fishing game — not a tower-defence game", and the icon (`icon.svg`: pixel-art fishing rod over a still pond at dawn, teal water, gold hook — no castle, no tower). `index.html` links the manifest and icon, and its `<title>` is now the exact store title. The five screenshots are still a shot list in this sheet — there is no listing yet to attach them to, and no screenshots were staged. Renaming the game is still a maker decision, not taken here. |
+| 773 | No monetization or ad plan described: the analogue is free and contains ads, with no placement, reward, or progression pacing shown for this build | The full monetization and ad rules now appear in the game itself (Settings panel), not just in this sheet: free, no ads, no in-app purchases; no rewarded ads, no interruptive ads, no ad placement anywhere, no ad SDK, ad frequency zero; coins earned only by catching fish; nothing stalls the idle loop (no timer, energy, or ad gate between casts); the first legend is reached by fishing, never by paying. The analogue's ads belong to the other game — Final Cast has never had ads. |
+
+## What is playable in 0.2.4
 
 - Idle line that catches small fish on its own; big bites hand you the rod.
 - Hand-fishing loop: BITE! cue, hookset timing with a first-attempt grace
@@ -112,6 +121,7 @@ Proposed identity for when Final Cast is listed. No listing exists yet.
 | Autosave + first-launch tutorial + low-memory guard | Finished (0.2.1) |
 | Low-memory idle/fight throttling, save backup download, day-1/day-7 retention logging, no-IAP statement, title disambiguation | Finished (0.2.2) |
 | Load-time / frame-drop / memory logging for the low-end test pass, 60-second capture script, monetization rules, proposed store identity | Finished (0.2.3) |
+| Store identity in the shipped build (manifest, icon, exact title) and full monetization/ad rules in the Settings panel | Finished (0.2.4) |
 | Tackle / upgrade shop (rod, line, reel, lure unlocks) | Placeholder — panel text says "wired in milestone 4" |
 | In-game quest tracking | Placeholder — quest panel points at `docs/quests.md` |
 | Cloud save / cross-device sync | Not built — saves are on-device only (localStorage); manual backup download added in 0.2.2 |
