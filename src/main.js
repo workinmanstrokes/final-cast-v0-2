@@ -1,4 +1,4 @@
-// Final Cast v0.2.5 — idle fishing with hand-fought big bites.
+// Final Cast v0.2.6 — idle fishing with hand-fought big bites.
 // Vanilla JS, no dependencies. Tuning lives in src/tuning.json; hookset
 // logging lives in src/playtest.js.
 //
@@ -9,6 +9,13 @@
 // bite hit/miss logging, quest idle-vs-active timing, and a Settings
 // field for the test phone's model / Android version (multi-phone
 // playtest, see docs/playtest-protocol.md).
+//
+// New in 0.2.6 (VEX 5.0 follow-up, suggestion 497): pacing, economy and
+// difficulty tuning for the 12-quest arc, written down in src/tuning.json
+// and wired in here — the idle gap comes from tuning.pacing.idleGapMs,
+// bite/hookset windows tighten by quest band (tuning.pacing.difficultyRamp),
+// and coin rewards come from tuning.economy. Quest-completion bonuses stay
+// design targets until in-game quest tracking ships (see tuning.json).
 //
 // Saves live in localStorage and are written automatically — on every
 // catch, every settings change, and whenever the page is hidden or
@@ -44,6 +51,11 @@ const DEFAULT_TUNING = {
     'Ember Lake': { difficulty: 5, fightDrift: 14, reelGain: 14, tickMs: 110 },
   },
   missPenalty: { type: 'lineSlack', slackSeconds: 8, spotCooldownSeconds: 30 },
+  pacing: {
+    idleGapMs: { min: 4000, max: 9000 },
+    difficultyRamp: { quests3to5: 1, quests6to8: 0.95, quests9to12: 0.9 },
+  },
+  economy: { idleCatchCoins: 5, handCatchCoins: 25, legendCatchCoins: 100 },
   performance: { lowMemoryGB: 2, lowMemoryBuzzMs: 30, lowMemoryIdleDelayMs: 9000, lowMemoryFightTickMs: 200 },
 };
 
@@ -162,13 +174,25 @@ function beep() {
 // firstQuestWindowMs from tuning so a first-time player succeeds most big
 // bites; from quest 3 the per-size windows apply. The first-attempt grace
 // period still adds on top for the hookset.
+// Difficulty ramp (VEX 5.0 follow-up, suggestion 497): bite/hookset
+// windows tighten by quest band — quests 3–5 at baseline, 6–8 at x0.95,
+// 9–12 at x0.90 — so the arc gets harder only after the player has
+// learned it. Quests 1–2 keep the forgiving first-quest window above.
+// questIndex is 0-based: quest 6 is index 5, quest 9 is index 8.
+function questWindowMultiplier() {
+  const band = tuning.pacing?.difficultyRamp;
+  if (!band) return 1;
+  if (save.questIndex < 5) return band.quests3to5 ?? 1;
+  if (save.questIndex < 8) return band.quests6to8 ?? 0.95;
+  return band.quests9to12 ?? 0.9;
+}
 function biteWindowFor(size) {
   if (save.questIndex < 2) return tuning.firstQuestWindowMs?.biteMs ?? tuning.biteWindowMsBySize[size] ?? 1000;
-  return tuning.biteWindowMsBySize[size] ?? 1000;
+  return Math.round((tuning.biteWindowMsBySize[size] ?? 1000) * questWindowMultiplier());
 }
 function hooksetWindowFor(size) {
   if (save.questIndex < 2) return tuning.firstQuestWindowMs?.hooksetMs ?? tuning.hooksetWindowMsBySize[size] ?? 700;
-  return tuning.hooksetWindowMsBySize[size] ?? 700;
+  return Math.round((tuning.hooksetWindowMsBySize[size] ?? 700) * questWindowMultiplier());
 }
 
 function sizeOf(fish) {
@@ -235,8 +259,11 @@ function scheduleIdleBite() {
   // Low-memory mode (VEX fix #2): on small-RAM devices the idle line waits
   // a fixed, longer gap between bites, so the busiest moments do less
   // work per second on a low-end Android 6.0–8 phone.
+  // Idle gap from tuning (0.2.6): pacing.idleGapMs, 4–9 s as shipped.
+  const gap = tuning.pacing?.idleGapMs;
   const delay = lowMemory
     ? (tuning.performance?.lowMemoryIdleDelayMs ?? 9000)
+    : gap ? gap.min + Math.random() * (gap.max - gap.min)
     : 4000 + Math.random() * 5000;
   try { noteQuestClock({ quest: save.questIndex + 1, idleMs: delay }); } catch { /* logging must never break the game */ }
   idleTimer = setTimeout(() => {
@@ -245,7 +272,7 @@ function scheduleIdleBite() {
     // Small fish are caught by the idle line automatically.
     if (Math.random() < 0.6) {
       save.fishCaught += 1;
-      save.coins += 5;
+      save.coins += tuning.economy?.idleCatchCoins ?? 5;
       save.collection.includes(fish) || save.collection.push(fish);
       persist();
       render();
@@ -339,14 +366,18 @@ function hookset() {
         const firstHandCatch = save.handCaught === 0;
         save.handCaught += 1;
         save.fishCaught += 1;
-        save.coins += size === 'legend' ? 100 : 25;
+        save.coins += size === 'legend'
+          ? (tuning.economy?.legendCatchCoins ?? 100)
+          : (tuning.economy?.handCatchCoins ?? 25);
         save.collection.includes(fish) || save.collection.push(fish);
         if (size === 'legend') {
           save.legends.push(fish);
           if (save.legends.length === 1) logPacingEvent('first_legend');
         }
         if (firstHandCatch) logPacingEvent('first_hand_catch');
-        alert(`Caught ${fish}! (+${size === 'legend' ? 100 : 25} coins)`);
+        alert(`Caught ${fish}! (+${size === 'legend'
+          ? (tuning.economy?.legendCatchCoins ?? 100)
+          : (tuning.economy?.handCatchCoins ?? 25)} coins)`);
       } else {
         alert(`${fish} broke the line.`);
       }

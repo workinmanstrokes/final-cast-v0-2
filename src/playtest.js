@@ -1,6 +1,11 @@
-// Final Cast v0.2.5 — hookset success/fail logging by fish size, plus
+// Final Cast v0.2.6 — hookset success/fail logging by fish size, plus
 // pacing, retention, crash and performance logging for the Game Test Lab
 // reviews (2026-11-25, 2026-11-27) and the VEX reviews (2026-11-26, 5.0/10).
+// New in 0.2.6 (VEX 5.0 follow-up, suggestion 497): session version bump
+// only — the pacing targets themselves live in src/tuning.json and are
+// wired in main.js; questSummary() below is what the real 1–12
+// playthrough is judged against (target minutes and active share in
+// docs/quests.md).
 // New in 0.2.5 (VEX 5.0 items 1, 4, 8): per-phone session details for the
 // 3–5 phone playtest matrix (see docs/playtest-protocol.md), bite hit/miss
 // logging separate from hookset attempts, and quest timing (idle vs active
@@ -15,7 +20,7 @@ const KEY = 'finalcast.playtest.v0_2';
 export function newSession({ phoneModel = 'unknown', androidVersion = 'unknown', screenSize = 'unknown', orientation = 'unknown', playerType = 'first-time' } = {}) {
   const session = {
     app: 'Final Cast',
-    version: '0.2.5',
+    version: '0.2.6',
     startedAt: new Date().toISOString(),
     phoneModel,
     // Per-phone details for the multi-phone playtest (VEX 5.0 item 1):

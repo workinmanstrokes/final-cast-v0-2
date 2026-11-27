@@ -6,6 +6,25 @@ Final Cast v0.2 is the next update to the existing pixel-art idle fishing game b
 
 **Not Final Castle, and not a tower-defence game.** Final Cast is a pixel-art idle fishing game — there are no towers, waves, or castle defences in it. The Lab and VEX reviews both describe a tower-defence game by a similar name; their fixes are applied here to the fishing game as shipped (see `docs/build-sheet.md` for the item-by-item mapping).
 
+## Build 0.2.6 — VEX 5.0 follow-up (suggestion 497)
+
+The VEX 5.0 follow-up re-picked one red flag: the 12-quest arc had no
+described pacing, economy or difficulty tuning, so repetition and burnout
+were a live risk. Build 0.2.6 writes the tuning down in
+[`src/tuning.json`](src/tuning.json) (`pacing`, `economy`) and in the
+quest table in [`docs/quests.md`](docs/quests.md): target minutes and
+active share per quest (quests 1–2 in the first 10 minutes, first legend
+in session 2, full arc 3–5 sessions / about 2–3 hours), the coin economy
+as shipped (idle +5, hand +25, legend +100, completion bonuses of 25
+coins × quest number), and a difficulty ramp (windows ×1.00 on quests
+3–5, ×0.95 on 6–8, ×0.90 on 9–12) — plus anti-burnout rules (every quest
+adds something new, no quest more than 70% idle waiting). The idle gap,
+window ramp and coin rewards are wired in `src/main.js` from tuning.
+These are design targets, not measurements: the pacing log is still empty
+until a real 1–12 playthrough fills it, and quest-completion bonuses pay
+nothing yet because in-game quest tracking is still a placeholder. See
+[`docs/build-sheet.md`](docs/build-sheet.md).
+
 ## Build 0.2.5 — VEX review (5.0/10, grade C)
 
 This is the review the v0.2 plan was built from. Build 0.2.5 answers all fifteen of its items — see [`docs/build-sheet.md`](docs/build-sheet.md) and the build-numbered audit in [`docs/bug-audit.md`](docs/bug-audit.md):
@@ -79,7 +98,7 @@ Progress saves **automatically** on this device — on every catch, every settin
 
 ## Tuning
 
-Bite and hookset windows live in [`src/tuning.json`](src/tuning.json) — one table per fish size, plus the first-attempt grace period, the forgiving first-quest window (quests 1–2), per-water legend-fight difficulty, the retrieve-speed trade-off, and the miss penalty. Change the numbers there, not in code. Hookset attempts are logged by fish size in [`src/playtest.js`](src/playtest.js); export a session and use it to retune. Pacing (time to first hand-fought catch, time to first legend), retention (day-1 / day-7 return), and crashes (tagged with device RAM) are logged in the same session.
+Bite and hookset windows live in [`src/tuning.json`](src/tuning.json) — one table per fish size, plus the first-attempt grace period, the forgiving first-quest window (quests 1–2), per-water legend-fight difficulty, the retrieve-speed trade-off, and the miss penalty. Change the numbers there, not in code. Hookset attempts are logged by fish size in [`src/playtest.js`](src/playtest.js); export a session and use it to retune. Pacing (time to first hand-fought catch, time to first legend), retention (day-1 / day-7 return), and crashes (tagged with device RAM) are logged in the same session. Pacing, economy and difficulty tuning for the 12-quest arc — target minutes and active share per quest, coin rewards, the quest-band window ramp, and the anti-burnout rules — are in the same file (`pacing`, `economy`) and in the quest table in [`docs/quests.md`](docs/quests.md); they are design targets until a real 1–12 playthrough fills the pacing log.
 
 ## Endgame and monetization
 

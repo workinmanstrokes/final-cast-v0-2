@@ -1,13 +1,45 @@
 # Final Cast — build sheet (one page)
 
-**Build 0.2.5** · 2026-11-27 · repo `workinmanstrokes/final-cast-v0-2` · branch `main`
-· based on commit `ec72f14cf1985ca8a4621e87c1829b13d152f12c` (v0.2.4)
+**Build 0.2.6** · 2026-11-27 · repo `workinmanstrokes/final-cast-v0-2` · branch `main`
+· based on commit `ec72f14cf1985ca8a4621e87c1829b13d152f12c` (v0.2.4) — 0.2.5 shipped on top of it (see below)
 · VEX review: **5.0/10 (grade C)** — this build answers that review, item by item below.
 · Game Test Lab review: **3.8/10 (grade D)** — answered in 0.2.3, kept here.
 · VEX review (2026-11-26): **4.5/10 (grade D)** — answered in 0.2.2, kept here.
 · Game Test Lab review (2026-11-25): **4.8/10 (grade D)** — answered in 0.2.1, kept here.
 
 **Read this first: the tester reviewed the wrong game — again.** The Lab's 3.8 text describes a Grow Castle-style tower-defence Android game — "place a tower or hero, clear a wave, spend the reward, start the next wave", Google Cloud save, ads, a public store listing. Final Cast is a pixel-art idle fishing game: no towers, no waves, no heroes, no castle, no ads, no store listing, no cloud save. The mapping below applies each Lab item to the fishing game as shipped and says plainly where an item belongs to the other game instead. No tower-defence content was added.
+
+## What changed in 0.2.6 (VEX 5.0 follow-up, suggestion 497)
+
+The VEX 5.0 follow-up re-picked one red flag from the 5.0 review: the
+12-quest idle-then-fight arc had no described pacing, economy or
+difficulty tuning, so repetition and burnout were a live risk. Build
+0.2.6 writes the tuning down and wires what can be wired:
+
+- **Pacing, economy and difficulty targets** in `src/tuning.json`
+  (`pacing`, `economy`) and in the quest table in `docs/quests.md`:
+  target minutes and target active share per quest (arc: quests 1–2 in
+  the first 10 minutes, 3–5 inside the first hour, first legend in
+  session 2, full arc 3–5 sessions / about 2–3 hours); coin economy as
+  shipped (idle +5, hand +25, legend +100) with quest-completion bonuses
+  of 25 coins × quest number; difficulty ramp ×1.00 on quests 3–5,
+  ×0.95 on 6–8, ×0.90 on 9–12.
+- **Wired in `src/main.js`:** the idle gap now comes from
+  `pacing.idleGapMs` (4–9 s as shipped), bite/hookset windows are
+  multiplied by the quest-band ramp after the forgiving first-quest
+  window, and coin rewards come from `tuning.economy`. The per-size
+  windows and legend-fight table are unchanged.
+- **Anti-burnout rules** in `docs/quests.md`: every quest adds a new
+  mechanic, unlock, water or legend; no quest is more than 70% idle
+  waiting (quest 11, the background collection quest, is the flagged
+  exception at 30% active); no quest targets over 20 minutes without a
+  completion bonus; the first session reaches quest 2 inside 10 minutes.
+- **Honest limits:** the targets are design targets, not measurements —
+  the pacing log in `docs/quests.md` is still empty until a real 1–12
+  playthrough fills it. Quest-completion bonuses are targets only:
+  in-game quest tracking is still a placeholder, so no bonus is paid
+  today; the bonuses are what the milestone-4 shop pays when quest
+  tracking ships.
 
 ## What changed in 0.2.5 (VEX 5.0 items, in the tester's order)
 
@@ -196,6 +228,7 @@ Proposed identity for when Final Cast is listed. No listing exists yet.
 | Store identity in the shipped build (manifest, icon, exact title) and full monetization/ad rules in the Settings panel | Finished (0.2.4) |
 | VEX 5.0 fixes: first-quest forgiving window, audio bite cue, per-water legend-fight difficulty, retrieve-speed trade-off stated, quest types + story beats, build-numbered bug audit, release checklist | Finished (0.2.5) |
 | Multi-phone playtest protocol + per-phone session logging + bite hit/miss logging + quest idle/active timing | Finished (0.2.5) — protocol and logging; no phone tested yet |
+| Pacing, economy and difficulty tuning for the 12-quest arc (targets + anti-burnout rules, idle gap / window ramp / coin rewards wired from tuning.json) | Finished (0.2.6) — targets, not measurements; pacing log still empty until a real 1–12 playthrough |
 | Tackle / upgrade shop (rod, line, reel, lure unlocks) | Placeholder — panel text says "wired in milestone 4" |
 | In-game quest tracking | Placeholder — quest panel points at `docs/quests.md` |
 | Cloud save / cross-device sync | Not built — saves are on-device only (localStorage); manual backup download added in 0.2.2 |
